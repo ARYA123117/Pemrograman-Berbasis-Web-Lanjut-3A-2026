@@ -69,7 +69,7 @@ class RoleSeeder extends Seeder
         // 4. Buat Akun Pengujian
         $admin = User::firstOrCreate(
             ['email' => 'admin@gmail.com'],
-            ['name' => 'Admin Utama', 'password' => Hash::make('password123')]
+            ['name' => 'Admin Utama', 'password' => Hash::make('password321')]
         );
         $admin->syncRoles([$adminRole]);
 
