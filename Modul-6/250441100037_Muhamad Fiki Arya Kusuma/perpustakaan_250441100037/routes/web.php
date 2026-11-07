@@ -25,17 +25,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:petugas')->get('/dashboard/petugas', [DashboardController::class, 'petugasDashboard'])->name('petugas.dashboard');
     Route::middleware('role:siswa')->get('/dashboard/siswa', [DashboardController::class, 'siswaDashboard'])->name('siswa.dashboard');
 
-    // FITUR BUKU
+    // FITUR BUKU UMUM (Dapat dibuka Admin, Petugas, dan Siswa)
     Route::get('/kelola-buku', [BukuWebController::class, 'index'])->name('buku.index');
     Route::get('/kelola-buku/{id}', [BukuWebController::class, 'show'])->name('buku.show');
 
-    Route::middleware('role:admin|petugas')->group(function () {
+    // SOAL 3: FITUR KELOLA BUKU (Tambah, Edit, Update, Delete)
+    // Dipusatkan menggunakan Middleware Gate 'can:kelola-buku' menggantikan role:admin|petugas & role:admin
+    Route::middleware('can:kelola-buku')->group(function () {
         Route::post('/kelola-buku', [BukuWebController::class, 'store'])->name('buku.store');
         Route::get('/kelola-buku/{id}/edit', [BukuWebController::class, 'edit'])->name('buku.edit');
         Route::put('/kelola-buku/{id}', [BukuWebController::class, 'update'])->name('buku.update');
-    });
-
-    Route::middleware('role:admin')->group(function () {
         Route::delete('/kelola-buku/{id}', [BukuWebController::class, 'destroy'])->name('buku.destroy');
     });
 
@@ -60,7 +59,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/users/{id}/role', [UserController::class, 'updateRole'])->name('users.updateRole');
     });
 
-    // ROUTE CELAH SOAL 1 A4 (IDOR) - DITARUH DI PALING BAWAH KELOMPOK AUTH
+    // ROUTE DETAIL PEMINJAMAN (A4 IDOR - Dibiarkan rentan di Soal 2 & 3, ditutup nanti di Soal 4)
     Route::get('/peminjaman/{id}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
 });
 
