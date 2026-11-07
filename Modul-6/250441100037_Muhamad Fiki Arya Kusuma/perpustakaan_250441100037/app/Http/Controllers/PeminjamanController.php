@@ -10,10 +10,9 @@ use Carbon\Carbon;
 
 class PeminjamanController extends Controller
 {
-    // SOAL 1 A4: CELAH IDOR (Menampilkan detail peminjaman tanpa cek kepemilikan)
+    // SOAL 1 A4: CELAH IDOR (Sengaja dibiarkan rentan di Soal 2, baru ditambal di Soal 4 pakai Policy)
     public function show($id)
     {
-        // Mengambil data peminjaman beserta relasi user & buku
         $peminjaman = Peminjaman::with(['user', 'buku'])->findOrFail($id);
         return view('peminjaman.show', compact('peminjaman'));
     }
