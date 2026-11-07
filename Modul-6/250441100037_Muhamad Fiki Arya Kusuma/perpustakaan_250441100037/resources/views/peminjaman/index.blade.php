@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Buku - E-Perpus</title>
+    <title>Kelola Peminjaman - E-Perpus</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
@@ -18,14 +18,9 @@
     <div class="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-                <h1 class="text-3xl font-bold tracking-tight text-white">Kelola Koleksi Buku</h1>
-                <p class="text-slate-400 text-sm mt-1">Tambah, edit, dan atur ketersediaan seluruh koleksi buku</p>
+                <h1 class="text-3xl font-bold tracking-tight text-white">Daftar Peminjaman Buku</h1>
+                <p class="text-slate-400 text-sm mt-1">Kelola dan validasi pengajuan peminjaman serta pengembalian buku</p>
             </div>
-
-            <form action="{{ route('buku.index') }}" method="GET" class="flex items-center space-x-2">
-                <input type="text" name="cari" value="{{ request('cari') }}" placeholder="Cari judul/penulis..." class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500">
-                <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-xl transition">Cari</button>
-            </form>
         </div>
 
         @if(session('success'))
@@ -34,63 +29,11 @@
             </div>
         @endif
 
-        @if ($errors->any())
-            <div class="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-2xl text-xs font-semibold space-y-1">
-                @foreach ($errors->all() as $error)
-                    <p>{{ $error }}</p>
-                @endforeach
+        @if(session('error'))
+            <div class="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-2xl text-xs font-semibold">
+                {{ session('error') }}
             </div>
         @endif
-
-        {{-- SOAL 3: Form Tambah/Edit Buku Dipagari Directive @can('kelola-buku') --}}
-        @can('kelola-buku')
-        <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/80 p-6 rounded-3xl mb-8">
-            <h3 class="text-lg font-bold text-white mb-4">{{ isset($bukuEdit) ? 'Edit Data Buku' : 'Tambah Buku Baru' }}</h3>
-            
-            <form action="{{ isset($bukuEdit) ? route('buku.update', $bukuEdit->id) : route('buku.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                @csrf
-                @if(isset($bukuEdit))
-                    @method('PUT')
-                @endif
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Kategori</label>
-                    <select name="kategori_id" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
-                        <option value="">Pilih Kategori</option>
-                        @foreach($kategoris as $kat)
-                            <option value="{{ $kat->id }}" {{ (old('kategori_id', $bukuEdit->kategori_id ?? '') == $kat->id) ? 'selected' : '' }}>
-                                {{ $kat->nama }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Judul Buku</label>
-                    <input type="text" name="judul" value="{{ old('judul', $bukuEdit->judul ?? '') }}" required placeholder="Masukkan Judul" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Penulis</label>
-                    <input type="text" name="penulis" value="{{ old('penulis', $bukuEdit->penulis ?? '') }}" required placeholder="Nama Penulis" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Tahun Terbit</label>
-                    <input type="number" name="tahun_terbit" value="{{ old('tahun_terbit', $bukuEdit->tahun_terbit ?? '') }}" required placeholder="Contoh: 2024" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
-                </div>
-
-                <div class="col-span-full flex items-center justify-end space-x-2 pt-2">
-                    @if(isset($bukuEdit))
-                        <a href="{{ route('buku.index') }}" class="px-4 py-2 bg-slate-800 text-slate-300 font-semibold text-xs rounded-xl hover:bg-slate-700 transition">Batal Edit</a>
-                    @endif
-                    <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-semibold text-xs rounded-xl transition shadow-lg shadow-indigo-600/20">
-                        {{ isset($bukuEdit) ? 'Perbarui Data Buku' : 'Simpan Buku Baru' }}
-                    </button>
-                </div>
-            </form>
-        </div>
-        @endcan
 
         <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/80 rounded-3xl p-6 shadow-2xl overflow-hidden">
             <div class="overflow-x-auto">
@@ -98,43 +41,72 @@
                     <thead>
                         <tr class="border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
                             <th class="pb-4 px-4">No</th>
-                            <th class="pb-4 px-4">Kategori</th>
-                            <th class="pb-4 px-4">Judul</th>
-                            <th class="pb-4 px-4">Penulis</th>
-                            <th class="pb-4 px-4">Tahun</th>
+                            <th class="pb-4 px-4">Peminjam</th>
+                            <th class="pb-4 px-4">Buku</th>
+                            <th class="pb-4 px-4">Tgl Pinjam</th>
+                            <th class="pb-4 px-4">Rencana Kembali</th>
+                            <th class="pb-4 px-4">Status</th>
                             <th class="pb-4 px-4 text-right">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-800/60 text-sm">
-                        @forelse($bukus as $index => $buku)
+                        @forelse($peminjamans as $index =>$item)
                             <tr class="hover:bg-slate-800/30 transition">
                                 <td class="py-4 px-4 text-slate-500 font-medium">{{ $index + 1 }}</td>
+                                <td class="py-4 px-4 font-bold text-white">{{ $item->user->name ?? 'User N/A' }}</td>
+                                <td class="py-4 px-4 text-slate-300 font-medium">{{ $item->buku->judul ?? 'Buku N/A' }}</td>
+                                <td class="py-4 px-4 text-slate-400 text-xs">{{ $item->tanggal_pinjam }}</td>
+                                <td class="py-4 px-4 text-slate-400 text-xs">{{ $item->tanggal_kembali ?? '-' }}</td>
                                 <td class="py-4 px-4">
-                                    <span class="text-[10px] font-bold uppercase bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2.5 py-1 rounded-full">
-                                        {{ $buku->kategori->nama ?? 'Umum' }}
-                                    </span>
+                                    @if($item->status == 'diajukan')
+                                        <span class="text-[10px] font-bold uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full">Diajukan</span>
+                                    @elseif($item->status == 'dipinjam')
+                                        <span class="text-[10px] font-bold uppercase bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2.5 py-1 rounded-full">Dipinjam</span>
+                                    @elseif($item->status == 'menunggu_kembali')
+                                        <span class="text-[10px] font-bold uppercase bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2.5 py-1 rounded-full">Menunggu Kembali</span>
+                                    @elseif($item->status == 'dikembalikan')
+                                        <span class="text-[10px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full">Dikembalikan</span>
+                                    @else
+                                        <span class="text-[10px] font-bold uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2.5 py-1 rounded-full">{{ $item->status }}</span>
+                                    @endif
                                 </td>
-                                <td class="py-4 px-4 font-bold text-white">{{ $buku->judul }}</td>
-                                <td class="py-4 px-4 text-slate-400 text-xs">{{ $buku->penulis }}</td>
-                                <td class="py-4 px-4 text-slate-400 text-xs">{{ $buku->tahun_terbit }}</td>
                                 <td class="py-4 px-4 text-right space-x-1">
-                                    <a href="{{ route('buku.show', $buku->id) }}" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition">Detail</a>
+                                    <div class="flex items-center justify-end gap-1">
+                                        <a href="{{ route('peminjaman.show', $item->id) }}" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition">Detail</a>
 
-                                    {{-- SOAL 3: Tombol Edit & Hapus Dipagari Directive @can('kelola-buku') --}}
-                                    @can('kelola-buku')
-                                        <a href="{{ route('buku.edit', $buku->id) }}" class="px-3 py-1.5 bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-semibold rounded-xl hover:bg-amber-500 hover:text-white transition">Edit</a>
+                                        @role('admin|petugas')
+                                            {{-- Form Validasi Pengajuan Pinjam --}}
+                                            @if($item->status == 'diajukan')
+                                                <form action="{{ route('peminjaman.validasiPinjam', $item->id) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <input type="hidden" name="action" value="setuju">
+                                                    <button type="submit" class="px-3 py-1.5 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold rounded-xl hover:bg-emerald-500 hover:text-white transition">Setujui</button>
+                                                </form>
 
-                                        <form action="{{ route('buku.destroy', $buku->id) }}" method="POST" onsubmit="return confirm('Hapus data buku ini?');" class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="px-3 py-1.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold rounded-xl hover:bg-rose-500 hover:text-white transition">Hapus</button>
-                                        </form>
-                                    @endcan
+                                                <form action="{{ route('peminjaman.validasiPinjam', $item->id) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <input type="hidden" name="action" value="tolak">
+                                                    <button type="submit" class="px-3 py-1.5 bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-semibold rounded-xl hover:bg-rose-500 hover:text-white transition">Tolak</button>
+                                                </form>
+                                            @endif
+
+                                            {{-- Form Validasi Pengembalian Buku --}}
+                                            @if($item->status == 'menunggu_kembali')
+                                                <form action="{{ route('peminjaman.validasiKembali', $item->id) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <button type="submit" class="px-3 py-1.5 bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-xs font-semibold rounded-xl hover:bg-indigo-500 hover:text-white transition">Terima Kembali</button>
+                                                </form>
+                                            @endif
+                                        @endrole
+                                    </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-8 text-center text-slate-500 text-sm">Tidak ada data buku ditemukan.</td>
+                                <td colspan="7" class="py-8 text-center text-slate-500 text-sm">Belum ada data peminjaman buku.</td>
                             </tr>
                         @endforelse
                     </tbody>

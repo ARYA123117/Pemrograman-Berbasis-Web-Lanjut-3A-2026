@@ -6,14 +6,19 @@ use App\Models\Buku;
 use App\Models\Peminjaman;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Carbon\Carbon;
 
 class PeminjamanController extends Controller
 {
-    // SOAL 1 A4: CELAH IDOR (Sengaja dibiarkan rentan di Soal 2, baru ditambal di Soal 4 pakai Policy)
+    // SOAL 4: PENAMBALAN A4 IDOR MENGGUNAKAN POLICY
     public function show($id)
     {
         $peminjaman = Peminjaman::with(['user', 'buku'])->findOrFail($id);
+
+        // Panggil Policy view
+        Gate::authorize('view', $peminjaman);
+
         return view('peminjaman.show', compact('peminjaman'));
     }
 
@@ -28,7 +33,6 @@ class PeminjamanController extends Controller
             'tanggal_kembali.after_or_equal' => 'Tanggal rencana kembali tidak boleh kurang dari tanggal peminjaman!',
         ]);
 
-        // CEK APAKAH SISWA MEMILIKI PINJAMAN BUKU YANG TERLAMBAT (OVERDUE)
         $adaTerlambat = Peminjaman::where('user_id', Auth::id())
             ->where('status', 'dipinjam')
             ->whereNotNull('tanggal_kembali')
